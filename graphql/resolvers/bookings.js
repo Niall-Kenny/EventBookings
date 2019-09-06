@@ -4,9 +4,13 @@ const { transformBooking, transformEvent } = require("./resolverUtils/utils");
 
 module.exports = {
   // each function is a 'resolver'
-  bookings: async () => {
+  bookings: async (args, req) => {
+    if (!req.isAuth) {
+      throw new Error("Unauthenticated!!");
+    }
     try {
       const bookings = await Booking.find();
+
       return bookings.map(booking => {
         return transformBooking(booking);
       });
@@ -15,17 +19,25 @@ module.exports = {
     }
   },
 
-  bookEvent: async ({ eventId }) => {
+  bookEvent: async ({ eventId }, req) => {
+    console.log(eventId);
+    if (!req.isAuth) {
+      throw new Error("Unauthenticated!!");
+    }
     const event = await Event.findOne({ _id: eventId });
+    console.log(event);
     const booking = new Booking({
-      user: "5d70002d628e1f14e240134c",
+      user: req.userId,
       event
     });
     const result = await booking.save();
 
     return transformBooking(result);
   },
-  cancelBooking: async ({ bookingId }) => {
+  cancelBooking: async ({ bookingId }, req) => {
+    if (!req.isAuth) {
+      throw new Error("Unauthenticated!!");
+    }
     try {
       const booking = await Booking.findById(bookingId).populate("event");
       const event = transformEvent(booking.event);

@@ -10,20 +10,27 @@ module.exports = {
       return transformEvent(event);
     });
   },
-  createEvent: async ({ eventInput: { title, description, price, date } }) => {
+  createEvent: async (
+    { eventInput: { title, description, price, date } },
+    req
+  ) => {
+    if (!req.isAuth) {
+      throw new Error("Unauthenticated!!");
+    }
+
     const event = new Event({
       title,
       description,
       price,
       date: new Date(date),
-      creator: "5d70002d628e1f14e240134c"
+      creator: req.userId
     });
     let createdEvent;
     try {
       const result = await event.save();
       //response from mongoDb
       createdEvent = transformEvent(result);
-      const user = await User.findById("5d70002d628e1f14e240134c");
+      const user = await User.findById(req.userId);
       if (!user) {
         throw new Error("User not found");
       }
