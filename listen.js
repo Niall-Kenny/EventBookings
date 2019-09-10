@@ -10,7 +10,7 @@ mongoose
   )
   .then(() => {
     app.listen(4000);
-    console.log("Heads up on 9090");
+    console.log("Heads up on 4000");
   })
   .catch(err => {
     console.log(err);
